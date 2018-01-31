@@ -4,7 +4,11 @@ const app = express();
 const router = require("./routes/api.route")
 const bodyParser = require("body-parser");
 
-
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+    res.setHeader("Access-Control-Allow-Methods", "GET, DELETE")
+    next();
+})
 app.use(bodyParser.json());
 app.use("/api", router);
 app.use("*", (req, res, next) => {
