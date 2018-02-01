@@ -6,7 +6,6 @@ const router = express.Router();
 
 
 // users
-
 router.get("/", (req, res) => {
     res.send("Welcome to api")
 })

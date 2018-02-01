@@ -1,7 +1,6 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-const router = require("./routes/api.route")
 const bodyParser = require("body-parser");
 
 app.use((req, res, next) => {
@@ -10,7 +9,7 @@ app.use((req, res, next) => {
     next();
 })
 app.use(bodyParser.json());
-app.use("/api", router);
+app.use("/api", require("./routes/index.route"));
 app.use("*", (req, res, next) => {
     res.end("404 Not Found");
 });
