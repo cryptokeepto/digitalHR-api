@@ -1,8 +1,15 @@
 # Install
 ```
-    $ git clone https://github.com/CryptoKeepto/digitalHR-api.git
+    $ git https://git.sami.int.thomsonreuters.com/Veerayut.Intorn/DigitalHR/tree/master/Utility/jsonToWordExcel
     $ cd digitalHR-api
     $ npm install
+```
+
+# CreateDatabase
+```
+    $ mongorestore --db <dataname> db/dump/digitalHR
+    $ mongod
+
 ```
 
 # Routes

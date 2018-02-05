@@ -39,7 +39,7 @@ router.get("/download", (req, res) => {
                 field = 1;
                 row++;
             }
-            workbook.write("execelFile.xlsx", res);
+            workbook.write("excelFile.xlsx", res);
         })
         client.close();
     })
