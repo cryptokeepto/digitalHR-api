@@ -4,8 +4,8 @@ const router = express.Router();
 const MongoClient = require("mongodb").MongoClient;
 const officegen = require("officegen");
 const fs = require("fs");
-const out = fs.createWriteStream("./data.docx");
-const path = require("path");
+// const out = fs.createWriteStream("./data.docx");
+// const path = require("path");
 
 
 router.get("/download", (req, res) => {

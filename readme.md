@@ -25,4 +25,6 @@
     - https://github.com/Ziv-Barber/officegen
     Excel
     - https://github.com/natergj/excel4node
+    PDF
+    - http://pdfkit.org/
 ```
