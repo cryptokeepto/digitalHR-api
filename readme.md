@@ -18,3 +18,11 @@
     GET /api/showOne
     POST /api/addOne [firstName, lastName, sex, email, image];
 ```
+
+# Reference
+```
+    #### Word
+    - https://github.com/Ziv-Barber/officegen
+    #### Excel
+    - https://github.com/natergj/excel4node
+```
