@@ -14,9 +14,14 @@
 
 # Routes
 ```
-    GET /api/showAll
-    GET /api/showOne
-    POST /api/addOne [firstName, lastName, sex, email, image];
+    employmentCertifyLetter
+        - POST /api/certifyLetter/employmentCertifyLetter/add [employeeID: string, typeCertifyLetter: string, firstName: string, lastName: string, note: string, numberOfCopy: number]
+
+
+
+    GET /api/users/showAll
+    GET /api/users/showOne
+    POST /api/users/addOne [firstName, lastName, sex, email, image];
 ```
 
 # Reference

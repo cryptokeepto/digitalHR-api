@@ -15,7 +15,6 @@ app.use("*", (req, res, next) => {
 });
 
 
-
 const server = app.listen(process.env.API_PORT, process.env.API_HOSTNAME, () => {
     const port = server.address().port;
     const hostname = server.address().address;
