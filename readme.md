@@ -1,6 +1,6 @@
 # Install
 ```
-    $ git https://git.sami.int.thomsonreuters.com/Veerayut.Intorn/DigitalHR/tree/master/Utility/jsonToWordExcel
+    $ git https://git.sami.int.thomsonreuters.com/Veerayut.Intorn/DigitalHR/tree/master/server
     $ cd digitalHR-api
     $ npm install
 ```
