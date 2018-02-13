@@ -6,14 +6,13 @@ const router = express.Router();
 const autoIncrement = require("mongodb-autoincrement");
 
 router.get("/", (req, res) => {
-    res.send("employmentCertifyLetter");
+    res.send("certifyLetterForHousingLoan");
 });
 
 router.post("/add", (req, res) => {
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
-        if (err) throw err;
         const db = client.db("digitalHR");
-        autoIncrement.getNextSequence(db, "digitalHR", "id", (err, autoIndex) => {
+        autoIncrement.getNextSequence(db, "certifyLetter", "id", (err, autoIndex) => {
             let myObj = {
                 "id": autoIndex, // autoincrement
                 "employeeID": req.body.employeeID, // string
@@ -21,9 +20,14 @@ router.post("/add", (req, res) => {
                 "firstName": req.body.firstName,
                 "lastName": req.body.lastName,
                 "note": req.body.note,
-                "numberOfCopy": req.body.numberOfCopy
+                "numberOfCopy": req.body.numberOfCopy,
+                "banks": {
+                    "BBL": req.body.banks.BBL,
+                    "GHB": req.body.banks.GHB,
+                    "LHBank": req.body.banks.LHBank,
+                    "UOB": req.body.banks.UOB
+                }
             }
-
             db.collection("certifyLetter").insertOne(myObj, (err, data) => {
                 if (err) throw err;
                 if (data.result.n > 0) {
@@ -36,15 +40,15 @@ router.post("/add", (req, res) => {
                     client.close();
                 }
             })
-        })
-    })
-})
+        });
+    });
+});
 
 // for admin
 router.get("/show", (req, res) => {
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
         const db = client.db("digitalHR");
-        db.collection("certifyLetter").find({}).toArray((err, data) => {
+        db.collection("certifyLetter").find({ "typeCertifyLetter": "certifyLetterForHousingLoan" }).toArray((err, data) => {
             if (err) throw err;
             if (data.length > 0) {
                 res.json({ "status": true, "message": data });
@@ -58,10 +62,6 @@ router.get("/show", (req, res) => {
         })
     })
 })
-
-
-
-
 
 
 module.exports = router;
