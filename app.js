@@ -4,8 +4,9 @@ const app = express();
 const bodyParser = require("body-parser");
 
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
-    res.setHeader("Access-Control-Allow-Methods", "GET, DELETE")
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "*");
+    res.setHeader("Access-Control-Allow-Headers", "*");
     next();
 })
 app.use(bodyParser.json());
