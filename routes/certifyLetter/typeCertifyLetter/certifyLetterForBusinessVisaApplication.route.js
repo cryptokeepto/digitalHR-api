@@ -7,7 +7,7 @@ const autoIncrement = require("mongodb-autoincrement");
 const upload = require("../../../utility/upload");
 
 router.get("/", (req, res) => {
-    res.end("certifyLetterForTouristVisaApplication");
+    res.end("certifyLetterForBusinessVisaApplication");
 });
 
 router.post("/add", (req, res) => {
@@ -28,26 +28,52 @@ router.post("/add", (req, res) => {
                     myFiles.push(file);
                 })
                 //-- upload --//
+                // let myObj = {
+                //     "ticketID": "TID" + Date.now(),
+                //     "createdAt": new Date(),
+                //     "status": req.body.status,
+                //     "typeCertifyLetter": req.body.typeCertifyLetter,
+                //     "owner": {
+                //         "employeeID": req.body.owner.employeeID,
+                //         "firstName": req.body.owner.firstName,
+                //         "lastName": req.body.owner.lastName,
+                //         "numberOfCopy": req.body.owner.numberOfCopy,
+                //         "passportNumber": req.body.owner.passportNumber,
+                //         "passportExpiryDate": req.body.owner.passportExpiryDate,
+                //         "files": myFiles,
+                //         "thomsonReutersOfficeYouPlanToVisit": req.body.owner.thomsonReutersOfficeYouPlanToVisit,
+                //         "companyRegisteredName": req.body.owner.companyRegisteredName,
+                //         "country": req.body.owner.country,
+                //         "periodOfVisit": {
+                //             "from": req.body.owner.periodOfVisit.from,
+                //             "to": req.body.owner.periodOfVisit.to
+                //         },
+                //         "purposeOfVisit": req.body.owner.purposeOfVisit,
+                //         "note": req.body.owner.note
+                //     }
+                // }
                 let myObj = {
                     "ticketID": "TID" + Date.now(),
                     "createdAt": new Date(),
-                    "status": req.body.status,
-                    "typeCertifyLetter": req.body.typeCertifyLetter,
+                    "status": 1,
+                    "typeCertifyLetter": "certifyLetterForBusinessVisaApplication",
                     "owner": {
-                        "employeeID": req.body.owner.employeeID,
-                        "firstName": req.body.owner.firstName,
-                        "lastName": req.body.owner.lastName,
-                        "numberOfCopy": req.body.owner.numberOfCopy,
-                        "passportNumber": req.body.owner.passportNumber,
-                        "passportExpiryDate": req.body.owner.passportExpiryDate,
+                        "employeeID": "2132145",
+                        "firstName": "somchai",
+                        "lastName": "jackson",
+                        "numberOfCopy": 2,
+                        "passportNumber": "AA56954",
+                        "passportExpiryDate": "165413",
                         "files": myFiles,
-                        "embassyForVisaApplication": req.body.owner.embassyForVisaApplication,
-                        "countryOfVisit": req.body.owner.countryOfVisit,
+                        "thomsonReutersOfficeYouPlanToVisit": "monday",
+                        "companyRegisteredName": "HR",
+                        "country": "bangkok",
                         "periodOfVisit": {
-                            "from": req.body.owner.periodOfVisit.from,
-                            "to": req.body.owner.periodOfVisit.to
+                            "from": "1/01/55",
+                            "to": "3/01/55"
                         },
-                        "note": req.body.owner.note
+                        "purposeOfVisit": "meeting",
+                        "note": "i love you"
                     }
                 }
                 db.collection("certifyLetter").insertOne(myObj, (err, data) => {
@@ -69,13 +95,13 @@ router.post("/add", (req, res) => {
         });
 
     })
-});
+})
 
 // for admin
 router.get("/show", (req, res) => {
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
         const db = client.db("digitalHR");
-        db.collection("certifyLetter").find({ "typeCertifyLetter": "certifyLetterForTouristVisaApplication" }).toArray((err, data) => {
+        db.collection("certifyLetter").find({ "typeCertifyLetter": "certifyLetterForBusinessVisaApplication" }).toArray((err, data) => {
             if (err) throw err;
             if (data.length > 0) {
                 res.json({ "status": true, "message": data });
@@ -89,7 +115,6 @@ router.get("/show", (req, res) => {
         })
     })
 })
-
 
 
 
