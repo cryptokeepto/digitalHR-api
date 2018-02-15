@@ -15,13 +15,19 @@ router.post("/add", (req, res) => {
         const db = client.db("digitalHR");
         autoIncrement.getNextSequence(db, "digitalHR", "id", (err, autoIndex) => {
             let myObj = {
-                "id": autoIndex, // autoincrement
-                "employeeID": req.body.employeeID, // string
-                "typeCertifyLetter": req.body.typeCertifyLetter, // type
-                "firstName": req.body.firstName,
-                "lastName": req.body.lastName,
-                "note": req.body.note,
-                "numberOfCopy": req.body.numberOfCopy
+                "ticketID": "TID" + Date.now(),
+                "createdAt": new Date(),
+                "status": req.body.status,
+                "typeCertifyLetter": req.body.typeCertifyLetter,
+                "owner": {
+                    "id": autoIndex, // autoincrement
+                    "employeeID": req.body.employeeID, // string
+                    "typeCertifyLetter": req.body.typeCertifyLetter, // type
+                    "firstName": req.body.firstName,
+                    "lastName": req.body.lastName,
+                    "note": req.body.note,
+                    "numberOfCopy": req.body.numberOfCopy
+                }
             }
 
             db.collection("certifyLetter").insertOne(myObj, (err, data) => {

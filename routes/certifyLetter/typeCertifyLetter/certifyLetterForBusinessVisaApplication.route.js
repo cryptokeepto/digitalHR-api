@@ -12,6 +12,7 @@ router.get("/", (req, res) => {
 
 router.post("/add", (req, res) => {
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+        if (err) throw err;
         const db = client.db("digitalHR");
         upload(req, res, (err) => {
             if (!err) {
@@ -28,54 +29,31 @@ router.post("/add", (req, res) => {
                     myFiles.push(file);
                 })
                 //-- upload --//
-                // let myObj = {
-                //     "ticketID": "TID" + Date.now(),
-                //     "createdAt": new Date(),
-                //     "status": req.body.status,
-                //     "typeCertifyLetter": req.body.typeCertifyLetter,
-                //     "owner": {
-                //         "employeeID": req.body.owner.employeeID,
-                //         "firstName": req.body.owner.firstName,
-                //         "lastName": req.body.owner.lastName,
-                //         "numberOfCopy": req.body.owner.numberOfCopy,
-                //         "passportNumber": req.body.owner.passportNumber,
-                //         "passportExpiryDate": req.body.owner.passportExpiryDate,
-                //         "files": myFiles,
-                //         "thomsonReutersOfficeYouPlanToVisit": req.body.owner.thomsonReutersOfficeYouPlanToVisit,
-                //         "companyRegisteredName": req.body.owner.companyRegisteredName,
-                //         "country": req.body.owner.country,
-                //         "periodOfVisit": {
-                //             "from": req.body.owner.periodOfVisit.from,
-                //             "to": req.body.owner.periodOfVisit.to
-                //         },
-                //         "purposeOfVisit": req.body.owner.purposeOfVisit,
-                //         "note": req.body.owner.note
-                //     }
-                // }
                 let myObj = {
                     "ticketID": "TID" + Date.now(),
                     "createdAt": new Date(),
-                    "status": 1,
-                    "typeCertifyLetter": "certifyLetterForBusinessVisaApplication",
+                    "status": req.body.status,
+                    "typeCertifyLetter": req.body.typeCertifyLetter,
                     "owner": {
-                        "employeeID": "2132145",
-                        "firstName": "somchai",
-                        "lastName": "jackson",
-                        "numberOfCopy": 2,
-                        "passportNumber": "AA56954",
-                        "passportExpiryDate": "165413",
+                        "employeeID": req.body.owner.employeeID,
+                        "firstName": req.body.owner.firstName,
+                        "lastName": req.body.owner.lastName,
+                        "numberOfCopy": req.body.owner.numberOfCopy,
+                        "passportNumber": req.body.owner.passportNumber,
+                        "passportExpiryDate": req.body.owner.passportExpiryDate,
                         "files": myFiles,
-                        "thomsonReutersOfficeYouPlanToVisit": "monday",
-                        "companyRegisteredName": "HR",
-                        "country": "bangkok",
+                        "thomsonReutersOfficeYouPlanToVisit": req.body.owner.thomsonReutersOfficeYouPlanToVisit,
+                        "companyRegisteredName": req.body.owner.companyRegisteredName,
+                        "country": req.body.owner.country,
                         "periodOfVisit": {
-                            "from": "1/01/55",
-                            "to": "3/01/55"
+                            "from": req.body.owner.periodOfVisit.from,
+                            "to": req.body.owner.periodOfVisit.to
                         },
-                        "purposeOfVisit": "meeting",
-                        "note": "i love you"
+                        "purposeOfVisit": req.body.owner.purposeOfVisit,
+                        "note": req.body.owner.note
                     }
                 }
+                
                 db.collection("certifyLetter").insertOne(myObj, (err, data) => {
                     if (err) throw err;
                     if (data.result.n > 0) {
