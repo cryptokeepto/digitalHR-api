@@ -11,21 +11,28 @@ router.get("/", (req, res) => {
 
 router.post("/add", (req, res) => {
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+        if (err) throw err;
         const db = client.db("digitalHR");
         autoIncrement.getNextSequence(db, "certifyLetter", "id", (err, autoIndex) => {
             let myObj = {
-                "id": autoIndex, // autoincrement
-                "employeeID": req.body.employeeID, // string
-                "typeCertifyLetter": req.body.typeCertifyLetter, // type
-                "firstName": req.body.firstName,
-                "lastName": req.body.lastName,
-                "note": req.body.note,
-                "numberOfCopy": req.body.numberOfCopy,
-                "banks": {
-                    "BBL": req.body.banks.BBL,
-                    "GHB": req.body.banks.GHB,
-                    "LHBank": req.body.banks.LHBank,
-                    "UOB": req.body.banks.UOB
+                "ticketID": "TID" + Date.now(),
+                "createdAt": new Date(),
+                "status": req.body.status,
+                "typeCertifyLetter": req.body.typeCertifyLetter,
+                "owner": {
+                    "id": autoIndex, // autoincrement
+                    "employeeID": req.body.employeeID, // string
+                    "typeCertifyLetter": req.body.typeCertifyLetter, // type
+                    "firstName": req.body.firstName,
+                    "lastName": req.body.lastName,
+                    "note": req.body.note,
+                    "numberOfCopy": req.body.numberOfCopy,
+                    "banks": {
+                        "BBL": req.body.banks.BBL,
+                        "GHB": req.body.banks.GHB,
+                        "LHBank": req.body.banks.LHBank,
+                        "UOB": req.body.banks.UOB
+                    }
                 }
             }
             db.collection("certifyLetter").insertOne(myObj, (err, data) => {

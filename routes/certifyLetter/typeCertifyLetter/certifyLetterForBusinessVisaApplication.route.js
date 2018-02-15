@@ -7,11 +7,12 @@ const autoIncrement = require("mongodb-autoincrement");
 const upload = require("../../../utility/upload");
 
 router.get("/", (req, res) => {
-    res.end("certifyLetterForTouristVisaApplication");
+    res.end("certifyLetterForBusinessVisaApplication");
 });
 
 router.post("/add", (req, res) => {
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+        if (err) throw err;
         const db = client.db("digitalHR");
         upload(req, res, (err) => {
             if (!err) {
@@ -41,15 +42,18 @@ router.post("/add", (req, res) => {
                         "passportNumber": req.body.owner.passportNumber,
                         "passportExpiryDate": req.body.owner.passportExpiryDate,
                         "files": myFiles,
-                        "embassyForVisaApplication": req.body.owner.embassyForVisaApplication,
-                        "countryOfVisit": req.body.owner.countryOfVisit,
+                        "thomsonReutersOfficeYouPlanToVisit": req.body.owner.thomsonReutersOfficeYouPlanToVisit,
+                        "companyRegisteredName": req.body.owner.companyRegisteredName,
+                        "country": req.body.owner.country,
                         "periodOfVisit": {
                             "from": req.body.owner.periodOfVisit.from,
                             "to": req.body.owner.periodOfVisit.to
                         },
+                        "purposeOfVisit": req.body.owner.purposeOfVisit,
                         "note": req.body.owner.note
                     }
                 }
+                
                 db.collection("certifyLetter").insertOne(myObj, (err, data) => {
                     if (err) throw err;
                     if (data.result.n > 0) {
@@ -69,13 +73,13 @@ router.post("/add", (req, res) => {
         });
 
     })
-});
+})
 
 // for admin
 router.get("/show", (req, res) => {
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
         const db = client.db("digitalHR");
-        db.collection("certifyLetter").find({ "typeCertifyLetter": "certifyLetterForTouristVisaApplication" }).toArray((err, data) => {
+        db.collection("certifyLetter").find({ "typeCertifyLetter": "certifyLetterForBusinessVisaApplication" }).toArray((err, data) => {
             if (err) throw err;
             if (data.length > 0) {
                 res.json({ "status": true, "message": data });
@@ -89,7 +93,6 @@ router.get("/show", (req, res) => {
         })
     })
 })
-
 
 
 
