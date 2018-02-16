@@ -2,9 +2,29 @@ require("dotenv").config();
 const MongoClient = require("mongodb").MongoClient;
 const mongodb = require("mongodb").ObjectId;
 const express = require("express");
+const path = require("path");
 const router = express.Router();
-const autoIncrement = require("mongodb-autoincrement");
 const upload = require("../../../utility/upload");
+
+function getDate() {
+    let d = new Date();
+    let year = d.getFullYear().toString();
+    let month = d.getMonth() + 1;
+    let day = d.getDate().toString();
+    let hour = d.getHours();
+    let minute = d.getMinutes();
+    let second = d.getSeconds();
+    
+    if (month.toString().length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
+    if (hour.toString().length < 2) hour = "0" + hour;
+    if (minute.toString().length < 2) minute = "0" + minute;
+    if (second.toString().length < 2) second = "0" + second;
+
+    let result = [year, month, day].join("-") + " " + [hour, minute, second].join(":");
+    return result;
+}
+
 
 router.get("/", (req, res) => {
     res.end("certifyLetterForTouristVisaApplication");
@@ -21,35 +41,59 @@ router.post("/add", (req, res) => {
                     let file = {
                         "filename": e.filename,
                         "originalname": e.originalname,
-                        "pathFile": `${e.destination.split(".").pop()}/${e.filename}`,
+                        "pathFile": path.join(e.destination.split(".").pop(), e.filename),
                         "size": e.size,
                         "mimetype": e.mimetype
                     }
                     myFiles.push(file);
                 })
                 //-- upload --//
+                // let myObj = {
+                //     "ticketID": "TID" + Date.now(),
+                //     "createdAt": getDate(),
+                //     "status": req.body.status,
+                //     "typeCertifyLetter": req.body.typeCertifyLetter,
+                //     "owner": {
+                //         "employeeID": req.body.owner.employeeID,
+                //         "firstName": req.body.owner.firstName,
+                //         "lastName": req.body.owner.lastName,
+                //         "numberOfCopy": req.body.owner.numberOfCopy,
+                //         "passportNumber": req.body.owner.passportNumber,
+                //         "passportExpiryDate": req.body.owner.passportExpiryDate,
+                //         "files": myFiles,
+                //         "embassyForVisaApplication": req.body.owner.embassyForVisaApplication,
+                //         "countryOfVisit": req.body.owner.countryOfVisit,
+                //         "periodOfVisit": {
+                //             "from": req.body.owner.periodOfVisit.from,
+                //             "to": req.body.owner.periodOfVisit.to
+                //         },
+                //         "note": req.body.owner.note
+                //     }
+                // }
+
                 let myObj = {
                     "ticketID": "TID" + Date.now(),
-                    "createdAt": new Date(),
-                    "status": req.body.status,
-                    "typeCertifyLetter": req.body.typeCertifyLetter,
+                    "createdAt": getDate(),
+                    "status": 1,
+                    "typeCertifyLetter": "certifyLetterForTouristVisaApplication",
                     "owner": {
-                        "employeeID": req.body.owner.employeeID,
-                        "firstName": req.body.owner.firstName,
-                        "lastName": req.body.owner.lastName,
-                        "numberOfCopy": req.body.owner.numberOfCopy,
-                        "passportNumber": req.body.owner.passportNumber,
-                        "passportExpiryDate": req.body.owner.passportExpiryDate,
+                        "employeeID": "6068131",
+                        "firstName": "sittikiat",
+                        "lastName": "sujitranon",
+                        "numberOfCopy": 5,
+                        "passportNumber": "AA56954",
+                        "passportExpiryDate": "2018-02-16",
                         "files": myFiles,
-                        "embassyForVisaApplication": req.body.owner.embassyForVisaApplication,
-                        "countryOfVisit": req.body.owner.countryOfVisit,
+                        "embassyForVisaApplication": "test",
+                        "countryOfVisit": "vietnam",
                         "periodOfVisit": {
-                            "from": req.body.owner.periodOfVisit.from,
-                            "to": req.body.owner.periodOfVisit.to
+                            "from": "2018-02-16",
+                            "to": "2018-02-22"
                         },
-                        "note": req.body.owner.note
+                        "note": "approve now"
                     }
                 }
+                
                 db.collection("certifyLetter").insertOne(myObj, (err, data) => {
                     if (err) throw err;
                     if (data.result.n > 0) {
