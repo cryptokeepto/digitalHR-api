@@ -57,6 +57,8 @@ router.post("/add", (req, res) => {
                         "employeeID": req.body.owner.employeeID,
                         "firstName": req.body.owner.firstName,
                         "lastName": req.body.owner.lastName,
+                        "firstNamePassport": req.body.owner.firstNamePassport,
+                        "lastNamePassport": req.body.owner.lastNamePassport,
                         "numberOfCopy": req.body.owner.numberOfCopy,
                         "passportNumber": req.body.owner.passportNumber,
                         "passportExpiryDate": req.body.owner.passportExpiryDate,

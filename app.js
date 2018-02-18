@@ -9,7 +9,7 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Headers", "*");
     next();
 })
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "50mb" }));
 app.use("/api", require("./routes/index.route"));
 app.use("*", (req, res, next) => {
     res.end("404 Not Found");
