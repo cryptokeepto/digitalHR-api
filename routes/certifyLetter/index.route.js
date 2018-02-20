@@ -13,7 +13,9 @@ router.use("/certifyLetterForBusinessVisaApplication", require("./typeCertifyLet
 router.get("/all", (req, res) => {
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
         const db = client.db("digitalHR");
-        db.collection("certifyLetter").find({}).toArray((err, data) => {
+        db.collection("certifyLetter")
+        .aggregate([{ $lookup: { from: "files", localField: "owner.filesID", foreignField: "filesID", as: "owner.filesOwner" }}])
+        .toArray((err, data) => {
             if (err) throw err;
             if (data.length > 0) {
                 res.json({ "status": true, "message": data });
@@ -27,4 +29,5 @@ router.get("/all", (req, res) => {
         })
     })
 })
+
 module.exports = router;
