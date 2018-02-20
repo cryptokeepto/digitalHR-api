@@ -31,24 +31,24 @@ router.get("/", (req, res) => {
 });
 
 router.post("/add", (req, res) => {
-
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
         const db = client.db("digitalHR");
         upload(req, res, (err) => {
+            console.log(req.files)
+            if (req.files === undefined) throw new Error("files is undefined");
             if (!err) {
                 //-- upload --//
-                // if (req.files == undefined) throw new Error("files is undefined");
-                // const myFiles = [];
-                // req.files.forEach((e) => {
-                //     let file = {
-                //         "filename": e.filename,
-                //         "originalname": e.originalname,
-                //         "pathFile": path.join(e.destination.split(".").pop(), e.filename),
-                //         "size": e.size,
-                //         "mimetype": e.mimetype
-                //     }
-                //     myFiles.push(file);
-                // })
+                const myFiles = [];
+                req.files.forEach((e) => {
+                    let file = {
+                        "filename": e.filename,
+                        "originalname": e.originalname,
+                        "pathFile": path.join(e.destination.split(".").pop(), e.filename),
+                        "size": e.size,
+                        "mimetype": e.mimetype
+                    }
+                    myFiles.push(file);
+                })
                 //-- upload --//
                 let myObj = {
                     "ticketID": "TID" + Date.now(),
@@ -56,24 +56,49 @@ router.post("/add", (req, res) => {
                     "status": req.body.status,
                     "typeCertifyLetter": req.body.typeCertifyLetter,
                     "owner": {
-                        "employeeID": req.body.owner.employeeID,
-                        "firstName": req.body.owner.firstName,
-                        "lastName": req.body.owner.lastName,
-                        "firstNamePassport": req.body.owner.firstNamePassport,
-                        "lastNamePassport": req.body.owner.lastNamePassport,
-                        "numberOfCopy": req.body.owner.numberOfCopy,
-                        "passportNumber": req.body.owner.passportNumber,
-                        "passportExpiryDate": req.body.owner.passportExpiryDate,
-                        "files": [].push(req.body.files),
-                        "embassyForVisaApplication": req.body.owner.embassyForVisaApplication,
-                        "countryOfVisit": req.body.owner.countryOfVisit,
+                        "employeeID": req.body.owner.employeeID || "",
+                        "firstName": req.body.owner.firstName || "",
+                        "lastName": req.body.owner.lastName || "",
+                        "firstNamePassport": req.body.owner.firstNamePassport || "",
+                        "lastNamePassport": req.body.owner.lastNamePassport || "",
+                        "numberOfCopy": req.body.owner.numberOfCopy || "",
+                        "passportNumber": req.body.owner.passportNumber || "",
+                        "passportExpiryDate": req.body.owner.passportExpiryDate || "",
+                        "files": myFiles,
+                        "embassyForVisaApplication": req.body.owner.embassyForVisaApplication || "",
+                        "countryOfVisit": req.body.owner.countryOfVisit || "",
                         "periodOfVisit": {
-                            "from": req.body.owner.periodOfVisit.from,
-                            "to": req.body.owner.periodOfVisit.to
+                            "from": req.body.owner.periodOfVisit.from || "",
+                            "to": req.body.owner.periodOfVisit.to || ""
                         },
                         "note": req.body.owner.note
                     }
                 }
+                // let myObj = {
+                //     "ticketID": "TID" + Date.now(),
+                //     "createdAt": getDate(),
+                //     "status": req.body.status,
+                //     "typeCertifyLetter": req.body.typeCertifyLetter,
+                //     "owner": {
+                //         "employeeID": req.body.owner.employeeID,
+                //         "firstName": req.body.owner.firstName,
+                //         "lastName": req.body.owner.lastName,
+                //         "firstNamePassport": req.body.owner.firstNamePassport,
+                //         "lastNamePassport": req.body.owner.lastNamePassport,
+                //         "numberOfCopy": req.body.owner.numberOfCopy,
+                //         "passportNumber": req.body.owner.passportNumber,
+                //         "passportExpiryDate": req.body.owner.passportExpiryDate,
+                //         "files": myFiles,
+                //         "embassyForVisaApplication": req.body.owner.embassyForVisaApplication,
+                //         "countryOfVisit": req.body.owner.countryOfVisit,
+                //         "periodOfVisit": {
+                //             "from": req.body.owner.periodOfVisit.from,
+                //             "to": req.body.owner.periodOfVisit.to
+                //         },
+                //         "note": req.body.owner.note
+                //     }
+                // }
+               
 
                 
                 db.collection("certifyLetter").insertOne(myObj, (err, data) => {
