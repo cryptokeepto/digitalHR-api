@@ -12,7 +12,7 @@ function getDate() {
     let hour = d.getHours();
     let minute = d.getMinutes();
     let second = d.getSeconds();
-    
+
     if (month.toString().length < 2) month = "0" + month;
     if (day.length < 2) day = "0" + day;
     if (hour.toString().length < 2) hour = "0" + hour;
@@ -35,6 +35,7 @@ router.post("/add", (req, res) => {
         let myObj = {
             "ticketID": "TID" + Date.now(),
             "createdAt": getDate(),
+            "modifiedAt": "-",
             "status": req.body.status,
             "typeCertifyLetter": req.body.typeCertifyLetter,
             "owner": {
@@ -75,6 +76,44 @@ router.get("/show", (req, res) => {
                 res.json({ "status": false, "message": data });
                 client.close();
                 console.log("find fail");
+            }
+        })
+    })
+})
+
+router.put("/update", (req, res) => {
+    let ticketID = req.body.ticketID;
+    MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+        const db = client.db("digitalHR");
+        db.collection("certifyLetter").updateOne({ "ticketID": ticketID }, { $set: req.body }, (err, data) => {
+            if (err) throw err;
+            if (data.result.n > 0) {
+                res.json({ "status": true, "message": `${data.modifiedCount} Updated` });
+                console.log("insert complete");
+                client.close();
+            } else {
+                res.json({ "status": false, "message": `${data.modifiedCount} Updated` });
+                console.log("insert fail");
+                client.close();
+            }
+        })
+    });
+})
+
+router.delete("/delete", (req, res) => {
+    let ticketID = req.query.ticketID;
+    MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+        const db = client.db("digitalHR");
+        db.collection("certifyLetter").deleteOne({"ticketID": ticketID }, (err, data) => {
+            if (err) throw err;
+            if (data.result.n > 0) {
+                res.json({ "status": true, "message": `${data.deletedCount} Deleted` });
+                console.log("insert complete");
+                client.close();
+            } else {
+                res.json({ "status": false, "message": `${data.deletedCount} Deleted` });
+                console.log("insert fail");
+                client.close();
             }
         })
     })
