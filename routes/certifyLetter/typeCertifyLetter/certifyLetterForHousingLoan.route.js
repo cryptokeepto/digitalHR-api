@@ -3,7 +3,26 @@ const MongoClient = require("mongodb").MongoClient;
 const mongodb = require("mongodb").ObjectId;
 const express = require("express");
 const router = express.Router();
-const autoIncrement = require("mongodb-autoincrement");
+
+function getDate() {
+    let d = new Date();
+    let year = d.getFullYear().toString();
+    let month = d.getMonth() + 1;
+    let day = d.getDate().toString();
+    let hour = d.getHours();
+    let minute = d.getMinutes();
+    let second = d.getSeconds();
+    
+    if (month.toString().length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
+    if (hour.toString().length < 2) hour = "0" + hour;
+    if (minute.toString().length < 2) minute = "0" + minute;
+    if (second.toString().length < 2) second = "0" + second;
+
+    let result = [year, month, day].join("-") + " " + [hour, minute, second].join(":");
+    return result;
+}
+
 
 router.get("/", (req, res) => {
     res.send("certifyLetterForHousingLoan");
@@ -13,41 +32,38 @@ router.post("/add", (req, res) => {
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
         if (err) throw err;
         const db = client.db("digitalHR");
-        autoIncrement.getNextSequence(db, "certifyLetter", "id", (err, autoIndex) => {
-            let myObj = {
-                "ticketID": "TID" + Date.now(),
-                "createdAt": new Date(),
-                "status": req.body.status,
-                "typeCertifyLetter": req.body.typeCertifyLetter,
-                "owner": {
-                    "id": autoIndex, // autoincrement
-                    "employeeID": req.body.employeeID, // string
-                    "typeCertifyLetter": req.body.typeCertifyLetter, // type
-                    "firstName": req.body.firstName,
-                    "lastName": req.body.lastName,
-                    "note": req.body.note,
-                    "numberOfCopy": req.body.numberOfCopy,
-                    "banks": {
-                        "BBL": req.body.banks.BBL,
-                        "GHB": req.body.banks.GHB,
-                        "LHBank": req.body.banks.LHBank,
-                        "UOB": req.body.banks.UOB
-                    }
+        let myObj = {
+            "ticketID": "TID" + Date.now(),
+            "createdAt": getDate(),
+            "modifiedAt": "-",
+            "status": req.body.status,
+            "typeCertifyLetter": req.body.typeCertifyLetter,
+            "owner": {
+                "employeeID": req.body.owner.employeeID, // string
+                "firstName": req.body.owner.firstName,
+                "lastName": req.body.owner.lastName,
+                "note": req.body.owner.note,
+                "numberOfCopy": req.body.owner.numberOfCopy,
+                "banks": {
+                    "BBL": req.body.owner.banks.BBL,
+                    "GHB": req.body.owner.banks.GHB,
+                    "LHBank": req.body.owner.banks.LHBank,
+                    "UOB": req.body.owner.banks.UOB
                 }
             }
-            db.collection("certifyLetter").insertOne(myObj, (err, data) => {
-                if (err) throw err;
-                if (data.result.n > 0) {
-                    res.json({ "status": true, "message": `${data.insertedCount} Inserted` });
-                    console.log("insert complete");
-                    client.close();
-                } else {
-                    res.json({ "status": false, "message": `${data.insertedCount} Inserted` });
-                    console.log("insert fail");
-                    client.close();
-                }
-            })
-        });
+        }
+        db.collection("certifyLetter").insertOne(myObj, (err, data) => {
+            if (err) throw err;
+            if (data.result.n > 0) {
+                res.json({ "status": true, "message": `${data.insertedCount} Inserted` });
+                console.log("insert complete");
+                client.close();
+            } else {
+                res.json({ "status": false, "message": `${data.insertedCount} Inserted` });
+                console.log("insert fail");
+                client.close();
+            }
+        })
     });
 });
 
@@ -70,5 +86,43 @@ router.get("/show", (req, res) => {
     })
 })
 
+
+router.put("/update", (req, res) => {
+    let ticketID = req.body.ticketID;
+    MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+        const db = client.db("digitalHR");
+        db.collection("certifyLetter").updateOne({ "ticketID": ticketID }, { $set: req.body }, (err, data) => {
+            if (err) throw err;
+            if (data.result.n > 0) {
+                res.json({ "status": true, "message": `${data.modifiedCount} Updated` });
+                console.log("insert complete");
+                client.close();
+            } else {
+                res.json({ "status": false, "message": `${data.modifiedCount} Updated` });
+                console.log("insert fail");
+                client.close();
+            }
+        })
+    });
+})
+
+router.delete("/delete", (req, res) => {
+    let ticketID = req.query.ticketID;
+    MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+        const db = client.db("digitalHR");
+        db.collection("certifyLetter").deleteOne({"ticketID": ticketID }, (err, data) => {
+            if (err) throw err;
+            if (data.result.n > 0) {
+                res.json({ "status": true, "message": `${data.deletedCount} Deleted` });
+                console.log("insert complete");
+                client.close();
+            } else {
+                res.json({ "status": false, "message": `${data.deletedCount} Deleted` });
+                console.log("insert fail");
+                client.close();
+            }
+        })
+    })
+})
 
 module.exports = router;
