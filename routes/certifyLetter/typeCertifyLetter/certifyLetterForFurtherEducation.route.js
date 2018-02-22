@@ -35,6 +35,7 @@ router.post("/add", (req, res) => {
         let myObj = {
             "ticketID": "TID" + Date.now(),
             "createdAt": getDate(),
+            "modifiedAt": "-",
             "status": req.body.status,
             "typeCertifyLetter": req.body.typeCertifyLetter,
             "owner": {
@@ -80,6 +81,43 @@ router.get("/show", (req, res) => {
     })
 })
 
+router.put("/update", (req, res) => {
+    let ticketID = req.body.ticketID;
+    MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+        const db = client.db("digitalHR");
+        db.collection("certifyLetter").updateOne({ "ticketID": ticketID }, { $set: req.body }, (err, data) => {
+            if (err) throw err;
+            if (data.result.n > 0) {
+                res.json({ "status": true, "message": `${data.modifiedCount} Updated` });
+                console.log("insert complete");
+                client.close();
+            } else {
+                res.json({ "status": false, "message": `${data.modifiedCount} Updated` });
+                console.log("insert fail");
+                client.close();
+            }
+        })
+    });
+})
+
+router.delete("/delete", (req, res) => {
+    let ticketID = req.query.ticketID;
+    MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+        const db = client.db("digitalHR");
+        db.collection("certifyLetter").deleteOne({"ticketID": ticketID }, (err, data) => {
+            if (err) throw err;
+            if (data.result.n > 0) {
+                res.json({ "status": true, "message": `${data.deletedCount} Deleted` });
+                console.log("insert complete");
+                client.close();
+            } else {
+                res.json({ "status": false, "message": `${data.deletedCount} Deleted` });
+                console.log("insert fail");
+                client.close();
+            }
+        })
+    })
+})
 
 
 

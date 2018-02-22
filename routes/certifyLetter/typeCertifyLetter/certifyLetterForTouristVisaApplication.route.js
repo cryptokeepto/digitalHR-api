@@ -81,10 +81,12 @@ router.post("/addFiles", (req, res) => {
 
 router.post("/add", (req, res) => {
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+        if (err) throw err;
         const db = client.db("digitalHR");
         let myObj = {
             "ticketID": "TID" + Date.now(),
             "createdAt": getDate(),
+            "modifiedAt": "-",
             "status": req.body.status,
             "typeCertifyLetter": req.body.typeCertifyLetter,
             "owner": {
@@ -130,7 +132,12 @@ router.get("/show", (req, res) => {
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
         const db = client.db("digitalHR");
         db.collection("certifyLetter")
-        .aggregate([{ $lookup: { from: "files", localField: "owner.filesID", foreignField: "filesID", as: "owner.filesOwner" }}])
+        .aggregate(
+            [
+                { $match: { "typeCertifyLetter": "certifyLetterForTouristVisaApplication" }},
+                { $lookup: { from: "files", localField: "owner.filesID", foreignField: "filesID", as: "owner.filesOwner" }}
+            ]
+        )
         .toArray((err, data) => {
             if (err) throw err;
             if (data.length > 0) {
@@ -146,6 +153,44 @@ router.get("/show", (req, res) => {
     })
 })
 
+
+router.put("/update", (req, res) => {
+    let ticketID = req.body.ticketID;
+    MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+        const db = client.db("digitalHR");
+        db.collection("certifyLetter").updateOne({ "ticketID": ticketID }, { $set: req.body }, (err, data) => {
+            if (err) throw err;
+            if (data.result.n > 0) {
+                res.json({ "status": true, "message": `${data.modifiedCount} Updated` });
+                console.log("insert complete");
+                client.close();
+            } else {
+                res.json({ "status": false, "message": `${data.modifiedCount} Updated` });
+                console.log("insert fail");
+                client.close();
+            }
+        })
+    });
+})
+
+router.delete("/delete", (req, res) => {
+    let ticketID = req.query.ticketID;
+    MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+        const db = client.db("digitalHR");
+        db.collection("certifyLetter").deleteOne({"ticketID": ticketID }, (err, data) => {
+            if (err) throw err;
+            if (data.result.n > 0) {
+                res.json({ "status": true, "message": `${data.deletedCount} Deleted` });
+                console.log("insert complete");
+                client.close();
+            } else {
+                res.json({ "status": false, "message": `${data.deletedCount} Deleted` });
+                console.log("insert fail");
+                client.close();
+            }
+        })
+    })
+})
 
 
 

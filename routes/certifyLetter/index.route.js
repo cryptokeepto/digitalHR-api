@@ -30,4 +30,23 @@ router.get("/all", (req, res) => {
     })
 })
 
+router.delete("/delete", (req, res) => {
+    let ticketID = req.query.ticketID;
+    MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+        const db = client.db("digitalHR");
+        db.collection("certifyLetter").deleteOne({"ticketID": ticketID }, (err, data) => {
+            if (err) throw err;
+            if (data.result.n > 0) {
+                res.json({ "status": true, "message": `${data.deletedCount} Deleted` });
+                console.log("insert complete");
+                client.close();
+            } else {
+                res.json({ "status": false, "message": `${data.deletedCount} Deleted` });
+                console.log("insert fail");
+                client.close();
+            }
+        })
+    })
+})
+
 module.exports = router;
