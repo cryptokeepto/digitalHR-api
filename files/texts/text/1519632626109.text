@@ -1,0 +1,28 @@
+db.books.aggregate(
+    {
+        $lookup: {
+            from: "type_books",
+            localField: "id",
+            foreignField: "type_books",
+            as: "new"
+        }
+    }
+)
+
+
+
+
+{
+    $lookup:
+      {
+        from: <collection to join>,
+        localField: <field from the input documents>, // foreign key ของ collection ต้นทาง
+        foreignField: <field from the documents of the "from" collection>, // foreign key ของ collection ปลายทาง
+        as: <output array field> // ตั้งชื่อ filed ใหม่
+      }
+ }
+
+
+
+ db.books.aggregate({ $lookup: { from: "type_books", localField: "id_type_books", foreignField: "id_type_books", as: "typeBook"}})
+
