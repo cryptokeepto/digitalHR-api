@@ -9,5 +9,6 @@ app.use("/uploads", require("./uploads.route"));
 app.use("/employee", require("./employee.route"));
 
 app.use("/certifyLetter", require("./certifyLetter/index.route"));
+app.use("/loan", require("./loan/index.route"));
 
 module.exports = app;
