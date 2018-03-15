@@ -100,6 +100,8 @@ router.put("/update", (req, res) => {
     });
 })
 
+
+
 router.delete("/delete", (req, res) => {
     let ticketID = req.query.ticketID;
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
