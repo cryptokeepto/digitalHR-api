@@ -11,24 +11,43 @@ router.use("/certifyLetterForBusinessVisaApplication", require("./typeCertifyLet
 
 // show all for admin
 router.get("/all", (req, res) => {
+
+    const page = parseInt(req.query.page);
+    const rows = parseInt( req.query.rows);
+    const start = (page - 1) * rows;
+    
     MongoClient.connect(process.env.DB_HOSTNAME, (err, client) => {
+
         const db = client.db("digitalHR");
-        db.collection("certifyLetter")
-        .aggregate([{ $lookup: { from: "files", localField: "owner.filesID", foreignField: "filesID", as: "owner.filesOwner" }}])
-        .toArray((err, data) => {
-            if (err) throw err;
-            if (data.length > 0) {
-                res.json({ "status": true, "message": data });
-                client.close();
-                console.log("find complete");
-            } else {
-                res.json({ "status": false, "message": data });
-                client.close();
-                console.log("find fail");
-            }
+
+        db.collection("certifyLetter").find().count()
+        .then((count) => {
+            let pageTotals = count / rows;
+            return Math.ceil(pageTotals);
         })
+        .then((pageTotals) => {
+            db.collection("certifyLetter")
+            .aggregate([{ $lookup: { from: "files", localField: "owner.filesID", foreignField: "filesID", as: "owner.filesOwner" }}, { $skip: start }, { $limit: rows }])
+            .toArray((err, data) => {
+                if (err) throw err;
+                if (data.length > 0) {
+                    res.json({ "status": true, "message": { "data": data, "pageTotals": pageTotals }});
+                    console.log("find complete");
+                } else {
+                    res.json({ "status": true, "message": { "data": data, "pageTotals": pageTotals }});
+                    console.log("find fail");
+                    client.close();
+                }
+            })
+        })
+        .catch((err) => {
+            console.log("error");
+            client.close();
+        })
+      
     })
-});
+
+})
 
 router.put("/updateAll", (req, res) => {
     let ticketID = req.body.ticketID;
