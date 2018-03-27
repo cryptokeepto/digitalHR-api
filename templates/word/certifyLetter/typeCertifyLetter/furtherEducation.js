@@ -1,11 +1,11 @@
 const officegen = require("officegen");
 
-function generateEmploymentAndSalary(ticket) {
+function generateFurtherEducation(ticket) {
     const docx = officegen({
         "type": "docx",
         "creator": ticket.owner.employeeID,
-        "title": "employmentAndSalary",
-        "subject": "HR"
+        "title": "furtherEducation",
+        "subject": "digitalHR"
     });
     // check error
     docx.on("error", (err) => {
@@ -26,11 +26,11 @@ function generateEmploymentAndSalary(ticket) {
     pObj.addLineBreak();
 
     var pObj = docx.createP();
-    pObj.addText(`This letter serves to certify that <Title> ${ticket.owner.firstName} ${ticket.owner.lastName} is an employee of <Company>.`, { font_face: "Arial", font_size: 12 });
+    pObj.addText(`<Title> ${ticket.owner.firstName} ${ticket.owner.lastName} has requested that the company issue this letter in support of <his/her> application to further <his/her> studies.`, { font_face: "Arial", font_size: 12 });
     pObj.addLineBreak();
 
     var pObj = docx.createP();
-    pObj.addText(`<Title> ${ticket.owner.firstName} ${ticket.owner.lastName} joined the Company <Service date>. At present <heshe> serves in the position as <Position> drawing a gross monthly salary of THB «Monthly_Salary». <HeShe> also receives a fixed bonus of one month salary. Therefore, «herhis» annual guaranteed pay is THB <Annual Salary>.`, { font_face: "Arial", font_size: 12 });
+    pObj.addText(`We are pleased to confirm that <Title> ${ticket.owner.firstName} ${ticket.owner.lastName} is an employee of <Company>. She joined the Company on Service Date> and is currently serving in the position as <Position>. During her <tenure>’ tenure with the company, <Title> <First Name>’s performance has been entirely satisfactory. Moreover, <his/her> works well with the company’s management team, peers and other staff members.`, { font_face: "Arial", font_size: 12 });
     pObj.addLineBreak();
 
     var pObj = docx.createP();
@@ -57,13 +57,10 @@ function generateEmploymentAndSalary(ticket) {
     pObj.addLineBreak();
     pObj.addLineBreak();
     pObj.addLineBreak();
-    pObj.addLineBreak();
-    pObj.addLineBreak();
     pObj.addText("Not valid without the company’s seal", { font_face: "Arial", font_size: 12, bold: true });
 
     return docx;
-
 }
 
 
-module.exports = generateEmploymentAndSalary;
+module.exports = generateFurtherEducation;

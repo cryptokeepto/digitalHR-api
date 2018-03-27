@@ -17,7 +17,7 @@ function generateEmployment(ticket) {
     var pObj = docx.createP();
     pObj.addLineBreak();
     pObj.addLineBreak();
-    pObj.addText("<Issue Date>", { font_face: "Arial", font_size: 12 });
+    pObj.addText(`${ticket.modifiedAt}`, { font_face: "Arial", font_size: 12 });
     pObj.addLineBreak();
     pObj.addLineBreak();
 
@@ -26,7 +26,7 @@ function generateEmployment(ticket) {
     pObj.addLineBreak();
 
     var pObj = docx.createP();
-    pObj.addText(`This letter serves to certify that <Title> ${ticket.owner.firstName} <Last name> is an employee of <Company>.`, { font_face: "Arial", font_size: 12 });
+    pObj.addText(`This letter serves to certify that <Title> ${ticket.owner.firstName} ${ticket.owner.lastName} is an employee of <Company>.`, { font_face: "Arial", font_size: 12 });
     pObj.addLineBreak();
 
     var pObj = docx.createP();

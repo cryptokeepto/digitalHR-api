@@ -42,6 +42,7 @@ router.post("/add", (req, res) => {
                 "employeeID": req.body.owner.employeeID, // string
                 "firstName": req.body.owner.firstName,
                 "lastName": req.body.owner.lastName,
+                "checked": req.body.owner.checked,
                 "numberOfCopy": req.body.owner.numberOfCopy,
                 "note": req.body.owner.note
             }

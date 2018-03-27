@@ -105,6 +105,7 @@ router.post("/add", (req, res) => {
                     "from": req.body.owner.periodOfVisit.from,
                     "to": req.body.owner.periodOfVisit.to
                 },
+                "schengenCountries": req.body.owner.schengenCountries,
                 "note": req.body.owner.note
             }
         }
