@@ -1,8 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const router = express.Router();
+const fs = require("fs");
 let ticketID;
 var docx;
+// typeWord
 const generateEmployment = require("../../templates/word/certifyLetter/typeCertifyLetter/employment");
 const generateEmploymentAndSalary = require("../../templates/word/certifyLetter/typeCertifyLetter/employmentAndSalary");
 
@@ -15,24 +17,32 @@ const generateBBL = require("../../templates/word/certifyLetter/typeCertifyLette
 const generateGHB = require("../../templates/word/certifyLetter/typeCertifyLetter/banks/GHB");
 const generateLHBank = require("../../templates/word/certifyLetter/typeCertifyLetter/banks/LHBank");
 const generateUOB = require("../../templates/word/certifyLetter/typeCertifyLetter/banks/UOB");
+// typeWord
+
+function checkFilesDir(filePath) {
+    let checkFiles = fs.existsSync(filePath);
+    if (checkFiles !== true) 
+        fs.mkdirSync(filePath);
+}
+
 
 function checkBanks(ticket, banks) {
-    console.log(banks)
+    // check dir is have if not have dir system automate generate dir
+    checkFilesDir("./files");
+    checkFilesDir("./files/generateDocuments");
+    checkFilesDir("./files/generateDocuments/word");
+
     if (banks.BBL) {
-        console.log("have")
-        docx = generateBBL(ticket);
+        generateBBL(ticket).generate(fs.createWriteStream(`./files/generateDocuments/word/${ticket.ticketID}-BBL.docx`))
     }
     if (banks.GHB) {
-        console.log("have")
-        docx = generateGHB(ticket);
+        generateGHB(ticket).generate(fs.createWriteStream(`./files/generateDocuments/word/${ticket.ticketID}-GHB.docx`));
     }
     if (banks.LHBank) {
-        console.log("have")
-        docx = generateLHBank(ticket);
+        generateLHBank(ticket).generate(fs.createWriteStream(`./files/generateDocuments/word/${ticket.ticketID}-LHBank.docx`));
     }
     if (banks.UOB) {
-        console.log("have")
-        docx = generateUOB(ticket);
+        generateUOB(ticket).generate(fs.createWriteStream(`./files/generateDocuments/word/${ticket.ticketID}-UOB.docx`));
     }
 }
 
@@ -83,3 +93,6 @@ router.route("/download")
 
 
 module.exports = router;
+
+
+
