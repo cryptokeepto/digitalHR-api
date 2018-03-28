@@ -4,7 +4,7 @@ const router = express.Router();
 const fs = require("fs");
 const Zip = require("node-7z");
 const rimraf = require("rimraf"); // module delete directory same rm -rf
-let ticketID;
+let ticketGlobal;
 var docx;
 
 // typeWord
@@ -80,23 +80,24 @@ router.route("/download")
         const ticket = req.body;
         switch (ticket.typeCertifyLetter) {
             case "employmentCertifyLetter":
-                ticketID = ticket.ticketID;
+                ticketGlobal = ticket;
                 ticket.owner.checked === "haveSalary" ? docx = generateEmploymentAndSalary(ticket) : docx = generateEmployment(ticket);
                 break;
             case "certifyLetterForTouristVisaApplication":
-                ticketID = ticket.ticketID;
+                ticketGlobal = ticket;
                 ticket.owner.schengenCountries ? docx = generateSchengenTouristVisaApplication(ticket) : docx = generateNormalTouristVisaApplication(ticket);
                 break;
             case "certifyLetterForFurtherEducation":
-                ticketID = ticket.ticketID;
+                ticketGlobal = ticket;
                 docx = generateFurtherEducation(ticket);
                 break;
             case "certifyLetterForHousingLoan":
-                ticketID = ticket.ticketID;
+                ticketGlobal = ticket;
                 checkBanksAndGenerate(ticket, ticket.owner.banks);
+                // ทำ async await coming soon
                 setTimeout(() => {
-                    compressFileToZip(ticketID, `./files/generateDocuments/word/${ticketID}`);
-                }, 1000)
+                    compressFileToZip(ticket.ticketID, `./files/generateDocuments/word/${ticket.ticketID}`);
+                }, 2000)
                 break;
             case "certifyLetterForBusinessVisaApplication":
                 break;
@@ -106,15 +107,19 @@ router.route("/download")
         res.end();
     })
     .get((req, res) => {
-        if (docx === undefined || ticketID === undefined) throw "docx and ticketID is not value, Please generate word first time";
-        res.writeHead(200, {
-            "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            'Content-disposition': `attachment; filename=${ticketID}.docx`
-        });
-        docx.generate(res, {
-            "finalize": () => console.log("Writed success"),
-            "error": () => { throw err }
-        });
+        if (ticketGlobal.typeCertifyLetter !== "certifyLetterForHousingLoan") {
+            if (docx === undefined || ticketGlobal.ticketID === undefined) throw "docx and ticketID is not value, Please generate word first time";
+            res.writeHead(200, {
+                "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                'Content-disposition': `attachment; filename=${ticketGlobal.ticketID}.docx`
+            });
+            docx.generate(res, {
+                "finalize": () => console.log("Writed success"),
+                "error": () => { throw err }
+            });
+        } else {
+            res.download(`./files/generateDocuments/word/${ticketGlobal.ticketID}.zip`)
+        }
     })
 
 
