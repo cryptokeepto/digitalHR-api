@@ -35,17 +35,7 @@ function compressFileToZip(ticketID, file) {
     const option = {
         t: "zip"
     };
-    zip.add(`./files/generateDocuments/word/${ticketID}`, file, option)
-        .then(() => {
-            rimraf(`./files/generateDocuments/word/${ticketID}`, function (err) {
-                if (err) throw err;
-                console.log(`generate ${ticketID}.zip and delete old folder success`);
-            });
-        })
-        .catch((error) => {
-            console.log(`generate ${ticketID}.zip and delete old folder fail`);
-            throw err;
-        })
+    return zip.add(`./files/generateDocuments/word/${ticketID}`, file, option);
 }
 
 function checkBanksAndGenerate(ticket, banks) {
@@ -55,20 +45,40 @@ function checkBanksAndGenerate(ticket, banks) {
     checkFilesDir("./files/generateDocuments/word");
     checkFilesDir(`./files/generateDocuments/word/${ticket.ticketID}`);
 
-    if (banks.BBL) {
-        generateBBL(ticket).generate(fs.createWriteStream(`./files/generateDocuments/word/${ticket.ticketID}/${ticket.ticketID}-BBL.docx`))
-    }
-    if (banks.GHB) {
-        generateGHB(ticket).generate(fs.createWriteStream(`./files/generateDocuments/word/${ticket.ticketID}/${ticket.ticketID}-GHB.docx`));
-    }
-    if (banks.LHBank) {
-        generateLHBank(ticket).generate(fs.createWriteStream(`./files/generateDocuments/word/${ticket.ticketID}/${ticket.ticketID}-LHBank.docx`));
-    }
-    if (banks.UOB) {
-        generateUOB(ticket).generate(fs.createWriteStream(`./files/generateDocuments/word/${ticket.ticketID}/${ticket.ticketID}-UOB.docx`));
-    }
+    const promise = new Promise((resolve) => {
+        if (banks.BBL) {
+            generateBBL(ticket).generate(fs.createWriteStream(`./files/generateDocuments/word/${ticket.ticketID}/${ticket.ticketID}-BBL.docx`))
+        }
+        if (banks.GHB) {
+            generateGHB(ticket).generate(fs.createWriteStream(`./files/generateDocuments/word/${ticket.ticketID}/${ticket.ticketID}-GHB.docx`));
+        }
+        if (banks.LHBank) {
+            generateLHBank(ticket).generate(fs.createWriteStream(`./files/generateDocuments/word/${ticket.ticketID}/${ticket.ticketID}-LHBank.docx`));
+        }
+        if (banks.UOB) {
+            generateUOB(ticket).generate(fs.createWriteStream(`./files/generateDocuments/word/${ticket.ticketID}/${ticket.ticketID}-UOB.docx`));
+        }
+        resolve(true);
+    })
+
+    return promise;
 }
 
+async function generateBank(ticket, banks) {
+    try {
+        await checkBanksAndGenerate(ticket, banks);
+        console.log("generating...");
+        await compressFileToZip(ticket.ticketID, `./files/generateDocuments/word/${ticket.ticketID}`);
+        console.log("generating success");
+        rimraf(`./files/generateDocuments/word/${ticket.ticketID}`, function (err) {
+            if (err) throw err;
+            console.log(`generate ${ticket.ticketID}.zip and delete old folder success`);
+        });
+    } catch (error) {
+        console.log(`generate ${ticket.ticketID}.zip and delete old folder fail`);
+        throw error;
+    }
+}
 
 
 router.get("/", (req, res) => {
@@ -82,29 +92,33 @@ router.route("/download")
             case "employmentCertifyLetter":
                 ticketGlobal = ticket;
                 ticket.owner.checked === "haveSalary" ? docx = generateEmploymentAndSalary(ticket) : docx = generateEmployment(ticket);
+                docx ? res.json({ "status": true, "message": `${ticket.ticketID}.docx` }) : res.json({ "status": false, "message": `${ticket.ticketID} generate docx fail` });
                 break;
             case "certifyLetterForTouristVisaApplication":
                 ticketGlobal = ticket;
                 ticket.owner.schengenCountries ? docx = generateSchengenTouristVisaApplication(ticket) : docx = generateNormalTouristVisaApplication(ticket);
+                docx ? res.json({ "status": true, "message": `${ticket.ticketID}.docx` }) : res.json({ "status": false, "message": `${ticket.ticketID} generate docx fail` });
                 break;
             case "certifyLetterForFurtherEducation":
                 ticketGlobal = ticket;
                 docx = generateFurtherEducation(ticket);
+                docx ? res.json({ "status": true, "message": `${ticket.ticketID}.docx` }) : res.json({ "status": false, "message": `${ticket.ticketID} generate docx fail` });
                 break;
             case "certifyLetterForHousingLoan":
                 ticketGlobal = ticket;
-                checkBanksAndGenerate(ticket, ticket.owner.banks);
-                // ทำ async await coming soon
-                setTimeout(() => {
-                    compressFileToZip(ticket.ticketID, `./files/generateDocuments/word/${ticket.ticketID}`);
-                }, 2000)
+                generateBank(ticket, ticket.owner.banks)
+                    .then(() => {
+                        res.json({ "status": true, "message": `${ticket.ticketID}.zip` });
+                    })
+                    .catch(() => {
+                        res.json({ "status": false, "message": `${ticket.ticketID} generate zip fail` });
+                    })
                 break;
             case "certifyLetterForBusinessVisaApplication":
                 break;
             default:
-                console.log("typeCertifyLetter not have in system");
+                res.json({ "status": true, "message": `typeCertifyLetter not have in system` });
         }
-        res.end();
     })
     .get((req, res) => {
         if (ticketGlobal.typeCertifyLetter !== "certifyLetterForHousingLoan") {
